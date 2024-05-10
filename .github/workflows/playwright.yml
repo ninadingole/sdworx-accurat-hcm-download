@@ -1,0 +1,56 @@
+name: Accurate Downloads
+on:
+  schedule:
+    - cron: '0 0 2 * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  test:
+    permissions:
+      contents: write    
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.43.0-jammy
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+    - name: Cache Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+    - name: Run Playwright tests
+      id: run-playwright-tests
+      run: |
+        BASEURL="${{ vars.BASEURL }}" \
+        HCMUSERNAME="${{ secrets.HCM_USERNAME }}" \
+        HCMPASSWORD="${{ secrets.HCM_PASSWORD }}" \
+        npx playwright test
+
+    # Commit and push all changed files.
+    - name: git commit files
+      id: git-commit
+      run: |
+        git config --global --add safe.directory $GITHUB_WORKSPACE
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "no-reply@ci.com"
+        git status
+        git add .
+        if git diff-index --quiet HEAD; then
+          echo "No changes to commit"
+          exit 0
+        fi
+        git commit -a -m "Update files $(date)"
+        git push

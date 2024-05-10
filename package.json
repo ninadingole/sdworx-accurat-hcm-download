@@ -1,0 +1,25 @@
+{
+  "name": "sdworx-accurat-hcm-download",
+  "version": "1.0.0",
+  "description": "Download Accurat HCM files to github",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:local": "npx playwright test --headed"
+  },
+  "keywords": ["hcm", "accurat", "sdworx"],
+  "author": "ninadingole",
+  "maintainers": ["ninadingole"],
+  "readme": "README.md",
+  "repository": {
+    "url": "https://github.com/ninadingole/sdworx-accurat-hcm-download"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.43.0",
+    "@types/node": "^20.8.10",
+    "dotenv": "^16.4.5"
+  },
+  "dependencies": {
+    "typescript": "^5.2.2"
+  }
+}
